@@ -179,6 +179,8 @@ loop do
       
     send_index_html(sesnum)
   end
+
+  delay 0
 end
 
 WiFi.httpServer(-1)
