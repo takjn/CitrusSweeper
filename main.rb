@@ -1,79 +1,89 @@
 #!mruby
-#Ver.2.24
-#TB6612FNG L-L->STOP. L-H->CCW, H-L->CW, H-H->ShortBrake
-MOTOR_SPEED = 30
-TURN_DELAY = 100
+#Ver.2.35
 
-pos = 0
-vero = [4,10]
-num = [18,3,15,14]
-Usb = Serial.new(0)
-pinMode(18, OUTPUT)
-pinMode(3, OUTPUT)
-pinMode(15, OUTPUT)
-pinMode(14, OUTPUT)
+# Dual DC Motor Driver TB6612FNG Class
+class  Tb6612
+  MOTOR_SPEED = 50
+
+  def initialize(pwma = 4, pwmb = 10, ain1 = 18, ain2 = 3, bin1 = 15, bin2 = 14)
+    @pwma = pwma
+    @pwmb = pwmb
+    @ain1 = ain1
+    @ain2 = ain2
+    @bin1 = bin1
+    @bin2 = bin2
+
+    pinMode(ain1, OUTPUT)
+    pinMode(ain2, OUTPUT)
+    pinMode(bin1, OUTPUT)
+    pinMode(bin2, OUTPUT)  
+  end
+  
+  def  forward(speed = MOTOR_SPEED)
+      digitalWrite(@ain1, HIGH)  #A1
+      digitalWrite(@ain2, LOW)   #A2
+      digitalWrite(@bin1, HIGH)  #B1digitalWrite(bin
+      digitalWrite(@bin2, LOW)   #B2
+      
+      pwm(@pwma,  speed)
+      pwm(@pwmb, speed)
+  end
+  
+  def backward(speed = MOTOR_SPEED)
+      digitalWrite(@ain1, LOW)   #A1
+      digitalWrite(@ain2, HIGH)  #A2
+      digitalWrite(@bin1, LOW)   #B1
+      digitalWrite(@bin2, HIGH)  #B2
+      
+      pwm(@pwma,  speed)
+      pwm(@pwmb, speed)
+  end
+  
+  def turn_right(speed = MOTOR_SPEED)
+      digitalWrite(@ain1, HIGH)  #A1
+      digitalWrite(@ain2,  LOW)  #A2
+      digitalWrite(@bin1,  LOW)  #B1
+      digitalWrite(@bin2, HIGH)  #B2
+      
+      pwm(@pwma,  speed)
+      pwm(@pwmb, speed)
+  end
+  
+  def turn_left(speed = MOTOR_SPEED)
+      digitalWrite(@ain1, LOW)   #A1
+      digitalWrite(@ain2,  HIGH) #A2
+      digitalWrite(@bin1,  HIGH) #B1
+      digitalWrite(@bin2, LOW)   #B2
+      
+      pwm(@pwma,  speed)
+      pwm(@pwmb, speed)
+  end
+  
+  def stop
+      pwm(@pwma, 0)
+      pwm(@pwmb, 0)
+  
+      digitalWrite(@ain1,  LOW)  #A1
+      digitalWrite(@ain2,  LOW)  #A2
+      digitalWrite(@bin1,  LOW)  #B1
+      digitalWrite(@bin2,  LOW)  #B2
+  end
+  
+end
+
+motor = Tb6612.new
+
+Usb = Serial.new(0,115200)
 Usb.println("Moter System Start.")
-
-def forward
-    digitalWrite(18, HIGH) #A1
-    digitalWrite(3,  LOW)  #A2
-    digitalWrite(15, HIGH) #B1
-    digitalWrite(14, LOW)  #B2
-    
-    pwm(4,  100)
-    pwm(10, 100)
-end
-
-def backward
-    digitalWrite(18, LOW)   #A1
-    digitalWrite(3,  HIGH)  #A2
-    digitalWrite(15, LOW)   #B1
-    digitalWrite(14, HIGH)  #B2
-    
-    pwm(4,  MOTOR_SPEED)
-    pwm(10, MOTOR_SPEED)
-end
-
-def turn_right
-    digitalWrite(18, HIGH)  #A1
-    digitalWrite(3,  LOW)   #A2
-    digitalWrite(15, LOW)   #B1
-    digitalWrite(14, HIGH)  #B2
-    
-    pwm(4,  MOTOR_SPEED)
-    pwm(10, MOTOR_SPEED)
-end
-
-def turn_left
-    digitalWrite(18, LOW)   #A1
-    digitalWrite(3,  HIGH)  #A2
-    digitalWrite(15, HIGH)  #B1
-    digitalWrite(14, LOW)   #B2
-    
-    pwm(4,  MOTOR_SPEED)
-    pwm(10, MOTOR_SPEED)
-end
-
-def stop
-    pwm(4,  0)
-    pwm(10, 0)
-
-    digitalWrite(18, HIGH)  #A1
-    digitalWrite(3,  HIGH)  #A2
-    digitalWrite(15, HIGH)  #B1
-    digitalWrite(14, HIGH)  #B2
-end
-
 
 
 #ESP8266を一度停止させる(リセットと同じ)
 pinMode(5,1)
+
 digitalWrite(5,0)   # LOW:Disable
 delay 500
 digitalWrite(5,1)   # LOW:Disable
 delay 500
-
-Usb = Serial.new(0,115200)
 
 if(!System.use?('WiFi'))then
   Usb.println "WiFi Card can't use."
@@ -158,35 +168,35 @@ while(true)do
     headview()
   elsif(res == "/?motor=0")
     Usb.println res + " " + sesnum.to_s
-    stop
+    motor.stop
     led 0
     WiFi.send(sesnum, headerbtn)
     WiFi.send(sesnum, bodybtn)
     headview()
   elsif(res == "/?motor=1")
     Usb.println res + " " + sesnum.to_s
-    forward
+    motor.forward
     led 1
     WiFi.send(sesnum, headerbtn)
     WiFi.send(sesnum, bodybtn)
     headview()
   elsif(res == "/?motor=2")
     Usb.println res + " " + sesnum.to_s
-    backward
+    motor.backward
     led 1
     WiFi.send(sesnum, headerbtn)
     WiFi.send(sesnum, bodybtn)
     headview()
   elsif(res == "/?motor=3")
     Usb.println res + " " + sesnum.to_s
-    turn_left
+    motor.turn_left
     led 1
     WiFi.send(sesnum, headerbtn)
     WiFi.send(sesnum, bodybtn)
     headview()
   elsif(res == "/?motor=4")
     Usb.println res + " " + sesnum.to_s
-    turn_right
+    motor.turn_right
     led 1
     WiFi.send(sesnum, headerbtn)
     WiFi.send(sesnum, bodybtn)
