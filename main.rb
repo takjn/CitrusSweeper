@@ -82,23 +82,12 @@ if(!System.use?('WiFi'))then
 end
 Usb.println "WiFi Ready"
 
-Usb.println "WiFi disconnect"
-Usb.println WiFi.disconnect
-
-Usb.println "WiFi Mode Setting"
-Usb.println WiFi.setMode 3  #Station-Mode & SoftAPI-Mode
-
-Usb.println "WiFi access point"
-Usb.println WiFi.softAP "Sweeper 192.168.4.1","37003700",2,3
-
-Usb.println "WiFi dhcp enable"
-Usb.println WiFi.dhcp 0,1
-
-Usb.println "WiFi multiConnect Set"
-Usb.println WiFi.multiConnect 1
-
-Usb.println "WiFi ipconfig"
-Usb.println WiFi.ipconfig
+Usb.println "WiFi disconnect #{WiFi.disconnect}"
+Usb.println "WiFi Mode Setting #{WiFi.setMode 3}" #Station-Mode & SoftAPI-Mode
+Usb.println "WiFi access point #{WiFi.softAP "Sweeper 192.168.4.1","37003700",2,3}"
+Usb.println "WiFi dhcp enable #{WiFi.dhcp 0,1}"
+Usb.println "WiFi multiConnect Set #{WiFi.multiConnect 1}"
+Usb.println "WiFi ipconfig #{WiFi.ipconfig}"
 
 Usb.println WiFi.httpServer(-1).to_s
 delay 100
