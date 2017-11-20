@@ -80,6 +80,12 @@ unless System.use?('WiFi')
   Usb.println "WiFi Card can't use."
   System.exit
 end
+
+unless System.use?('SD')
+  Usb.println "Please insert a microSD card and reset."
+  System.exit
+end
+
 Usb.println "WiFi Ready"
 
 Usb.println "WiFi disconnect #{ WiFi.disconnect }"
