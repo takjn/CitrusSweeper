@@ -13,16 +13,13 @@ class  TB6612Driver
     @bin1 = bin1
     @bin2 = bin2
 
-    pinMode(ain1, OUTPUT)
-    pinMode(ain2, OUTPUT)
-    pinMode(bin1, OUTPUT)
-    pinMode(bin2, OUTPUT)  
+    [pwma, pwmb, ain1, ain2, bin1, bin2].each { |pin| pinMode(pin, OUTPUT) }
   end
   
   def forward(speed = MOTOR_SPEED)
       digitalWrite(@ain1, HIGH)  #A1
       digitalWrite(@ain2, LOW)   #A2
-      digitalWrite(@bin1, HIGH)  #B1digitalWrite(bin
+      digitalWrite(@bin1, HIGH)  #B1
       digitalWrite(@bin2, LOW)   #B2
       
       pwm(@pwma, speed)
@@ -60,14 +57,14 @@ class  TB6612Driver
   end
   
   def stop
-      pwm(@pwma, 0)
-      pwm(@pwmb, 0)
-  
       digitalWrite(@ain1, LOW)  #A1
       digitalWrite(@ain2, LOW)  #A2
       digitalWrite(@bin1, LOW)  #B1
       digitalWrite(@bin2, LOW)  #B2
-  end
+
+      pwm(@pwma, 0)
+      pwm(@pwmb, 0)
+    end
   
 end
 
