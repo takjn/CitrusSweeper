@@ -1,6 +1,6 @@
 # CITRUS Sweeper
 
-
+![CITRUS Sweeper](https://raw.githubusercontent.com/takjn/CitrusSweeper/master/CitrusSweeper.JPG)
 
 GR-CITRUS + WA-MIKAN + SANBOU-KANのデモプログラムです。スマホのブラウザから操作することができます。
 
