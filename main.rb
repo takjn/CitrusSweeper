@@ -99,7 +99,7 @@ EOS
     @stdout.println s
   end
 
-  def initialize
+  def initialize(ssid, password)
     @stdout = Serial.new(0, 115200)
     @motor = TB6612Driver.new
     
@@ -115,7 +115,7 @@ EOS
     
     puts "WiFi disconnect #{ WiFi.disconnect }"
     puts "WiFi Mode Setting #{ WiFi.setMode(3) }" #Station-Mode & SoftAPI-Mode
-    puts "WiFi access point #{ WiFi.softAP("Sweeper 192.168.4.1", "37003700", 2, 3) }"
+    puts "WiFi access point #{ WiFi.softAP(ssid, password, 2, 3) }"
     puts "WiFi dhcp enable #{ WiFi.dhcp(0, 1) }"
     puts "WiFi multiConnect Set #{ WiFi.multiConnect(1) }"
     puts "WiFi ipconfig #{ WiFi.ipconfig }"
@@ -184,4 +184,4 @@ EOS
 
 end
 
-CitrusSweepwer.new.run
+CitrusSweepwer.new("Sweeper 192.168.4.1", "37003700").run
