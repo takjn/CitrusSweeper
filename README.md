@@ -1,4 +1,4 @@
-# CITRUS Sweeper
+# CITRUS Sweeper - お掃除ロボット
 
 ![CITRUS Sweeper](https://raw.githubusercontent.com/takjn/CitrusSweeper/master/CitrusSweeper.JPG)
 
