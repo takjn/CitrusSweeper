@@ -95,31 +95,33 @@ Content-Length: #{INDEX_BODY.length.to_s}
 
 EOS
 
+  def puts(s)
+    @stdout.println s
+  end
+
   def initialize
     @stdout = Serial.new(0, 115200)
-    
     @motor = TB6612Driver.new
-    @stdout.println("Moter System Start")
     
     unless System.use?('WiFi')
-      @stdout.println "WiFi Card can't use."
+      puts "WiFi Card can't use."
       System.exit
     end
     
     unless System.use?('SD')
-      @stdout.println "Please insert a microSD card and reset."
+      puts "Please insert a microSD card and reset."
       System.exit
     end
     
-    @stdout.println "WiFi disconnect #{ WiFi.disconnect }"
-    @stdout.println "WiFi Mode Setting #{ WiFi.setMode(3) }" #Station-Mode & SoftAPI-Mode
-    @stdout.println "WiFi access point #{ WiFi.softAP("Sweeper 192.168.4.1", "37003700", 2, 3) }"
-    @stdout.println "WiFi dhcp enable #{ WiFi.dhcp(0, 1) }"
-    @stdout.println "WiFi multiConnect Set #{ WiFi.multiConnect(1) }"
-    @stdout.println "WiFi ipconfig #{ WiFi.ipconfig }"
-    @stdout.println "WiFi HttpServer Stop #{ WiFi.httpServer(-1) }"
+    puts "WiFi disconnect #{ WiFi.disconnect }"
+    puts "WiFi Mode Setting #{ WiFi.setMode(3) }" #Station-Mode & SoftAPI-Mode
+    puts "WiFi access point #{ WiFi.softAP("Sweeper 192.168.4.1", "37003700", 2, 3) }"
+    puts "WiFi dhcp enable #{ WiFi.dhcp(0, 1) }"
+    puts "WiFi multiConnect Set #{ WiFi.multiConnect(1) }"
+    puts "WiFi ipconfig #{ WiFi.ipconfig }"
+    puts "WiFi HttpServer Stop #{ WiFi.httpServer(-1) }"
     delay 100
-    @stdout.println "WiFi HttpServer Start #{ WiFi.httpServer(80) }"
+    puts "WiFi HttpServer Start #{ WiFi.httpServer(80) }"
   end
   
   def render_index(session_number)
@@ -133,51 +135,51 @@ EOS
     
       case
       when response == "/"
-        @stdout.println "#{response} #{session_number.to_s}"
+        puts "#{response} #{session_number}"
         render_index(session_number)
       when response == "/?motor=0"
-        @stdout.println "#{response} #{session_number.to_s}"
         @motor.stop
         led 0
+        puts "#{response} #{session_number}"
         render_index(session_number)
       when response == "/?motor=1"
-        @stdout.println "#{response} #{session_number.to_s}"
         @motor.forward
         led 1
+        puts "#{response} #{session_number}"
         render_index(session_number)
       when response == "/?motor=2"
-        @stdout.println "#{response} #{session_number.to_s}"
         @motor.backward
         led 1
+        puts "#{response} #{session_number}"
         render_index(session_number)
       when response == "/?motor=3"
-        @stdout.println "#{response} #{session_number.to_s}"
         @motor.turn_left
         led 1
+        puts "#{response} #{session_number}"
         render_index(session_number)
       when response == "/?motor=4"
-        @stdout.println "#{response} #{session_number.to_s}"
         @motor.turn_right
         led 1
+        puts "#{response} #{session_number}"
         render_index(session_number)
       when response == "/?exit=1"
-        @stdout.println "#{response} #{session_number.to_s}"
+        puts "#{response} #{session_number}"
         render_index(session_number)
         break
       when response == "0,CLOSED\r\n"
-        @stdout.println "#{response} #{session_number.to_s}"
+        puts "#{response} #{session_number}"
       when response.to_s.length > 2 && ((response.bytes[0].to_s + response.bytes[1].to_s  == "0,") || (response.bytes[0].to_s + response.bytes[1].to_s  == "1,"))
-        @stdout.println "Else(*,:" + response << " " << session_number.to_s
+        puts "Else(*,:#{response} #{session_number}"
       when response != 0
-        @stdout.println "Else:" + response.to_s
+        puts "Else:#{response}"
         render_index(session_number)
       end
     
       delay 0
     end
 
-    @stdout.println "WiFi HttpServer Stop #{ WiFi.httpServer(-1) }"
-    @stdout.println "WiFi disconnect #{ WiFi.disconnect }"
+    puts "WiFi HttpServer Stop #{ WiFi.httpServer(-1) }"
+    puts "WiFi disconnect #{ WiFi.disconnect }"
   end
 
 end
