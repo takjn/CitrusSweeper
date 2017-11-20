@@ -68,32 +68,9 @@ class  TB6612Driver
   
 end
 
-Usb = Serial.new(0,115200)
 
-motor = TB6612Driver.new
-Usb.println("Moter System Start.")
-
-unless System.use?('WiFi')
-  Usb.println "WiFi Card can't use."
-  System.exit
-end
-
-unless System.use?('SD')
-  Usb.println "Please insert a microSD card and reset."
-  System.exit
-end
-
-Usb.println "WiFi Ready"
-
-Usb.println "WiFi disconnect #{ WiFi.disconnect }"
-Usb.println "WiFi Mode Setting #{ WiFi.setMode(3) }" #Station-Mode & SoftAPI-Mode
-Usb.println "WiFi access point #{ WiFi.softAP("Sweeper 192.168.4.1", "37003700", 2, 3) }"
-Usb.println "WiFi dhcp enable #{ WiFi.dhcp(0, 1) }"
-Usb.println "WiFi multiConnect Set #{ WiFi.multiConnect(1) }"
-Usb.println "WiFi ipconfig #{ WiFi.ipconfig }"
-Usb.println "WiFi HttpServer Stop #{ WiFi.httpServer(-1) }"
-delay 100
-Usb.println "WiFi HttpServer Start #{ WiFi.httpServer(80) }"
+# CITRUS Sweeper Control Class
+class CitrusSweepwer
 
 INDEX_BODY = <<EOS
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -118,58 +95,91 @@ Content-Length: #{INDEX_BODY.length.to_s}
 
 EOS
 
-def render_index(session_number)
-  WiFi.send(session_number, INDEX_HEADER)
-  WiFi.send(session_number, INDEX_BODY)
-end
+  def initialize
+    @stdout = Serial.new(0, 115200)
+    
+    @motor = TB6612Driver.new
+    @stdout.println("Moter System Start")
+    
+    unless System.use?('WiFi')
+      @stdout.println "WiFi Card can't use."
+      System.exit
+    end
+    
+    unless System.use?('SD')
+      @stdout.println "Please insert a microSD card and reset."
+      System.exit
+    end
+    
+    @stdout.println "WiFi disconnect #{ WiFi.disconnect }"
+    @stdout.println "WiFi Mode Setting #{ WiFi.setMode(3) }" #Station-Mode & SoftAPI-Mode
+    @stdout.println "WiFi access point #{ WiFi.softAP("Sweeper 192.168.4.1", "37003700", 2, 3) }"
+    @stdout.println "WiFi dhcp enable #{ WiFi.dhcp(0, 1) }"
+    @stdout.println "WiFi multiConnect Set #{ WiFi.multiConnect(1) }"
+    @stdout.println "WiFi ipconfig #{ WiFi.ipconfig }"
+    @stdout.println "WiFi HttpServer Stop #{ WiFi.httpServer(-1) }"
+    delay 100
+    @stdout.println "WiFi HttpServer Start #{ WiFi.httpServer(80) }"
+  end
+  
+  def render_index(session_number)
+    WiFi.send(session_number, INDEX_HEADER)
+    WiFi.send(session_number, INDEX_BODY)
+  end
+  
+  def run
+    loop do
+      response, session_number = WiFi.httpServer
+    
+      case
+      when response == "/"
+        @stdout.println "#{response} #{session_number.to_s}"
+        render_index(session_number)
+      when response == "/?motor=0"
+        @stdout.println "#{response} #{session_number.to_s}"
+        @motor.stop
+        led 0
+        render_index(session_number)
+      when response == "/?motor=1"
+        @stdout.println "#{response} #{session_number.to_s}"
+        @motor.forward
+        led 1
+        render_index(session_number)
+      when response == "/?motor=2"
+        @stdout.println "#{response} #{session_number.to_s}"
+        @motor.backward
+        led 1
+        render_index(session_number)
+      when response == "/?motor=3"
+        @stdout.println "#{response} #{session_number.to_s}"
+        @motor.turn_left
+        led 1
+        render_index(session_number)
+      when response == "/?motor=4"
+        @stdout.println "#{response} #{session_number.to_s}"
+        @motor.turn_right
+        led 1
+        render_index(session_number)
+      when response == "/?exit=1"
+        @stdout.println "#{response} #{session_number.to_s}"
+        render_index(session_number)
+        break
+      when response == "0,CLOSED\r\n"
+        @stdout.println "#{response} #{session_number.to_s}"
+      when response.to_s.length > 2 && ((response.bytes[0].to_s + response.bytes[1].to_s  == "0,") || (response.bytes[0].to_s + response.bytes[1].to_s  == "1,"))
+        @stdout.println "Else(*,:" + response << " " << session_number.to_s
+      when response != 0
+        @stdout.println "Else:" + response.to_s
+        render_index(session_number)
+      end
+    
+      delay 0
+    end
 
-loop do
-  response, session_number = WiFi.httpServer
-
-  case
-  when response == "/"
-    Usb.println "#{response} #{session_number.to_s}"
-    render_index(session_number)
-  when response == "/?motor=0"
-    Usb.println "#{response} #{session_number.to_s}"
-    motor.stop
-    led 0
-    render_index(session_number)
-  when response == "/?motor=1"
-    Usb.println "#{response} #{session_number.to_s}"
-    motor.forward
-    led 1
-    render_index(session_number)
-  when response == "/?motor=2"
-    Usb.println "#{response} #{session_number.to_s}"
-    motor.backward
-    led 1
-    render_index(session_number)
-  when response == "/?motor=3"
-    Usb.println "#{response} #{session_number.to_s}"
-    motor.turn_left
-    led 1
-    render_index(session_number)
-  when response == "/?motor=4"
-    Usb.println "#{response} #{session_number.to_s}"
-    motor.turn_right
-    led 1
-    render_index(session_number)
-  when response == "/?exit=1"
-    Usb.println "#{response} #{session_number.to_s}"
-    render_index(session_number)
-    break
-  when response == "0,CLOSED\r\n"
-    Usb.println "#{response} #{session_number.to_s}"
-  when response.to_s.length > 2 && ((response.bytes[0].to_s + response.bytes[1].to_s  == "0,") || (response.bytes[0].to_s + response.bytes[1].to_s  == "1,"))
-    Usb.println "Else(*,:" + response << " " << session_number.to_s
-  when response != 0
-    Usb.println "Else:" + response.to_s
-    render_index(session_number)
+    @stdout.println "WiFi HttpServer Stop #{ WiFi.httpServer(-1) }"
+    @stdout.println "WiFi disconnect #{ WiFi.disconnect }"
   end
 
-  delay 0
 end
 
-Usb.println "WiFi HttpServer Stop #{ WiFi.httpServer(-1) }"
-Usb.println "WiFi disconnect #{ WiFi.disconnect }"
+CitrusSweepwer.new.run
