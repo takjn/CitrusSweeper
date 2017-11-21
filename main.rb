@@ -73,16 +73,18 @@ end
 class CitrusSweepwer
 
 INDEX_BODY = <<EOS
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>CITRUS Sweeper</title></head>
-<body><form method="get" >
+<html><head>
+<title>CITRUS Sweeper</title>
+<style>button {width:30%;height:256px;padding:20px;font-size:50px;} </style>
+</head>
+<body><form method="get">
 <h1 align="center">CITRUS Sweeper<br><br><br>
-<button type='submit' name='motor' value='1' style='width: 30%; height: 256px; padding: 20px;font-size:50px;'>Forward</button><br><br>
-<button type='submit' name='motor' value='3' style='width: 30%; height: 256px; padding: 20px;font-size:50px;'>Left</button>
-<button type='submit' name='motor' value='0' style='width: 30%; height: 256px; padding: 20px;font-size:50px;'>Stop</button>
-<button type='submit' name='motor' value='4' style='width: 30%; height: 256px; padding: 20px;font-size:50px;'>Right</button><br><br>
-<button type='submit' name='motor' value='2' style='width: 30%; height: 256px; padding: 20px;font-size:50px;'>Backward</button><br><br>
-<button type='submit' name='exit' value='1' style='width: 70%; height: 256px; padding: 20px;font-size:50px;'>EXIT</button><br>
+<button type='submit' name='motor' value='1'>Forward</button><br><br>
+<button type='submit' name='motor' value='3'>Left</button>
+<button type='submit' name='motor' value='0'>Stop</button>
+<button type='submit' name='motor' value='4'>Right</button><br><br>
+<button type='submit' name='motor' value='2'>Backward</button><br><br>
+<button type='submit' name='exit' value='1' style='width: 70%;'>EXIT</button><br>
 </h1></form></body></html>
 EOS
 
@@ -109,7 +111,7 @@ EOS
     end
     
     unless System.use?('SD')
-      puts "Please insert a microSD card and reset."
+      puts "Please insert a microSD card."
       System.exit
     end
     
@@ -155,11 +157,17 @@ EOS
       when response == "/?motor=3"
         @motor.turn_left
         led 1
+        delay 400
+        @motor.stop
+        led 0
         puts "#{response} #{session_number}"
         render_index(session_number)
       when response == "/?motor=4"
         @motor.turn_right
         led 1
+        delay 400
+        @motor.stop
+        led 0
         puts "#{response} #{session_number}"
         render_index(session_number)
       when response == "/?exit=1"
