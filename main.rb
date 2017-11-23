@@ -17,55 +17,55 @@ class  TB6612Driver
   end
   
   def forward(speed = MOTOR_SPEED)
-      digitalWrite(@ain1, HIGH)  #A1
-      digitalWrite(@ain2, LOW)   #A2
-      digitalWrite(@bin1, HIGH)  #B1
-      digitalWrite(@bin2, LOW)   #B2
-      
-      pwm(@pwma, speed)
-      pwm(@pwmb, speed)
+    digitalWrite(@ain1, HIGH)  #A1
+    digitalWrite(@ain2, LOW)   #A2
+    digitalWrite(@bin1, HIGH)  #B1
+    digitalWrite(@bin2, LOW)   #B2
+    
+    pwm(@pwma, speed)
+    pwm(@pwmb, speed)
   end
   
   def backward(speed = MOTOR_SPEED)
-      digitalWrite(@ain1, LOW)   #A1
-      digitalWrite(@ain2, HIGH)  #A2
-      digitalWrite(@bin1, LOW)   #B1
-      digitalWrite(@bin2, HIGH)  #B2
-      
-      pwm(@pwma, speed)
-      pwm(@pwmb, speed)
+    digitalWrite(@ain1, LOW)   #A1
+    digitalWrite(@ain2, HIGH)  #A2
+    digitalWrite(@bin1, LOW)   #B1
+    digitalWrite(@bin2, HIGH)  #B2
+    
+    pwm(@pwma, speed)
+    pwm(@pwmb, speed)
   end
   
   def turn_right(speed = MOTOR_SPEED)
-      digitalWrite(@ain1, HIGH) #A1
-      digitalWrite(@ain2, LOW)  #A2
-      digitalWrite(@bin1, LOW)  #B1
-      digitalWrite(@bin2, HIGH) #B2
-      
-      pwm(@pwma, speed)
-      pwm(@pwmb, speed)
+    digitalWrite(@ain1, HIGH) #A1
+    digitalWrite(@ain2, LOW)  #A2
+    digitalWrite(@bin1, LOW)  #B1
+    digitalWrite(@bin2, HIGH) #B2
+    
+    pwm(@pwma, speed)
+    pwm(@pwmb, speed)
   end
   
   def turn_left(speed = MOTOR_SPEED)
-      digitalWrite(@ain1, LOW)  #A1
-      digitalWrite(@ain2, HIGH) #A2
-      digitalWrite(@bin1, HIGH) #B1
-      digitalWrite(@bin2, LOW)  #B2
-      
-      pwm(@pwma, speed)
-      pwm(@pwmb, speed)
+    digitalWrite(@ain1, LOW)  #A1
+    digitalWrite(@ain2, HIGH) #A2
+    digitalWrite(@bin1, HIGH) #B1
+    digitalWrite(@bin2, LOW)  #B2
+    
+    pwm(@pwma, speed)
+    pwm(@pwmb, speed)
   end
   
   def stop
-      digitalWrite(@ain1, LOW)  #A1
-      digitalWrite(@ain2, LOW)  #A2
-      digitalWrite(@bin1, LOW)  #B1
-      digitalWrite(@bin2, LOW)  #B2
+    digitalWrite(@ain1, LOW)  #A1
+    digitalWrite(@ain2, LOW)  #A2
+    digitalWrite(@bin1, LOW)  #B1
+    digitalWrite(@bin2, LOW)  #B2
 
-      pwm(@pwma, 0)
-      pwm(@pwmb, 0)
-    end
-  
+    pwm(@pwma, 0)
+    pwm(@pwmb, 0)
+  end
+
 end
 
 
@@ -84,7 +84,8 @@ INDEX_BODY = <<EOS
 <button type='submit' name='motor' value='0'>Stop</button>
 <button type='submit' name='motor' value='4'>Right</button><br><br>
 <button type='submit' name='motor' value='2'>Backward</button><br><br>
-<button type='submit' name='exit' value='1' style='width: 70%;'>EXIT</button><br>
+<button type='submit' name='auto' value='1' style='width: 45%;'>AUTO</button>
+<button type='submit' name='exit' value='1' style='width: 45%;'>EXIT</button><br>
 </h1></form></body></html>
 EOS
 
@@ -170,6 +171,23 @@ EOS
         led 0
         puts "#{response} #{session_number}"
         render_index(session_number)
+      when response == "/?auto=1"
+        puts "#{response} #{session_number}"
+        render_index(session_number)
+
+        led 1
+
+        # 自動運転プログラム ここから
+        4.times do
+          @motor.forward(100)
+          delay 1000
+          @motor.turn_right(100)
+          delay 500
+        end
+        # 自動運転プログラム ここまで
+
+        @motor.stop
+        led 0
       when response == "/?exit=1"
         puts "#{response} #{session_number}"
         render_index(session_number)
